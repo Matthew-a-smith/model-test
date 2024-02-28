@@ -1,0 +1,2 @@
+ip.dst,ip.src,tcp.dstport,tcp.srcport,tcp.window_size_value,tcp.flags
+172.16.154.70,192.168.170.128,443,37269,1024,0x0002

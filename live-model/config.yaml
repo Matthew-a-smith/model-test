@@ -1,0 +1,92 @@
+#file paths for the folllowing
+file_paths:
+  dataset: "nmap-SN.csv" # labled data
+  captured_traffic: "CSV-Files/tcp_traffic.csv" #normal traffic
+  trained_model: "Models/Training/NMAP-trained_model.keras" # labled model
+  inference_model: "Models/Inferance/NMAP-inference_model.keras" # inferance mode
+
+capture_interval: 5  # Define the capture interval in seconds
+prediction_threshold: 0.9
+
+#T-shark parameters config.
+#Whatever values get changed here you will have to include the 
+#correct changes in the feature space to match
+tshark_options:
+  interface: "wlan0"
+  filter: "tcp"
+  header: "y"
+  ip_add: "f"
+  separator: ", "
+  output_fields:
+    - "ip.dst"
+    - "ip.src"
+    - "tcp.dstport"
+    - "tcp.srcport"
+    - "tcp.window_size_value"
+    - "tcp.flags"
+capture_interval: 5  # Seconds
+
+#feature space for model
+#define each row in row in csv with aproatie data type
+feature_space:
+  features:
+    #- name: "ip.dst"
+    #  type: "string"
+    #  num_oov_indices: 1
+    #- name: "ip.src"
+    #  type: "string"
+    #  num_oov_indices: 1
+    - name: "tcp.dstport"
+      type: "integer"
+      num_oov_indices: 1
+    - name: "tcp.srcport"
+      type: "integer"
+      num_oov_indices: 1
+    - name: "tcp.window_size_value"
+      type: "integer"
+      num_oov_indices: 1
+    - name: "tcp.flags"
+      type: "string"
+      num_oov_indices: 1
+ #crosses / features that interact with each other
+  crosses:
+    #- feature_names: ["ip.dst", "ip.src"]
+    #  crossing_dim: 64
+    - feature_names: ["tcp.srcport", "tcp.dstport"]
+      crossing_dim: 64
+
+model_config:
+  dense_layer1_units: 64
+  dense_layer2_units: 32
+  dropout_rate: 0.5
+  optimizer: "adam"
+  loss: "binary_crossentropy"
+  metrics:
+    - "accuracy"
+  epochs: 30
+  batch_size: 32
+  validation_split: 0.2
+
+# testing samples for finetuneing model adjuist as needed
+testing_samples:
+  - ip.dst: "192.168.2.15"
+    ip.src: "192.168.2.23"
+    tcp.dstport: 8009
+    tcp.srcport: 42394
+    tcp.window_size_value: 1024
+    tcp.flags: "0x0002"
+
+  - ip.dst: "192.168.2.15"
+    ip.src: "192.168.2.23"
+    tcp.dstport: 8009
+    tcp.srcport: 42394
+    tcp.window_size_value: 1024
+    tcp.flags: "0x0000"
+
+  - ip.dst: "192.168.2.15"
+    ip.src: "192.168.2.23"
+    tcp.dstport: 8009
+    tcp.srcport: 42394
+    tcp.window_size_value: 64000
+    tcp.flags: "0x0014"
+
